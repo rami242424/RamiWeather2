@@ -1,4 +1,5 @@
-import React from 'react';
+import * as Location from "expo-location";
+import React, { useEffect, useState } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { ScrollView, StyleSheet, Text, View, Dimensions } from 'react-native';
 
@@ -6,6 +7,25 @@ const { width : SCREEN_WIDTH } = Dimensions.get("window");
 // console.log(SCREEN_WIDTH);
 
 export default function App() {
+  const [location, setLocation] = useState();
+  const [ok, setOk] = useState(true);
+  const ask = async() => {
+    // 1.권한요청
+    const { granted } = await Location.requestForegroundPermissionsAsync();
+    if(!granted){
+      setOk(false);
+    }
+    // 2.유저위치정보
+    const location = await Location.getCurrentPositionAsync();
+    console.log(location);
+
+
+  }
+  useEffect(() => {
+    ask();
+  }, []);
+
+
   return (
     <View style={styles.container}>
       <View style={styles.city}>
