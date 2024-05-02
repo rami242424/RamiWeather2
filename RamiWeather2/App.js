@@ -7,6 +7,7 @@ const { width : SCREEN_WIDTH } = Dimensions.get("window");
 // console.log(SCREEN_WIDTH);
 
 export default function App() {
+  const [city, setCity] = useState("Loading...");
   const [location, setLocation] = useState();
   const [ok, setOk] = useState(true);
   const ask = async() => {
@@ -18,9 +19,12 @@ export default function App() {
     // 2.유저위치정보
     const {coords: {latitude, longitude}} = await Location.getCurrentPositionAsync();
     // console.log({latitude, longitude});
-    const location = await Location.reverseGeocodeAsync({latitude, longitude});
-    console.log(location);
-
+    const location = await Location.reverseGeocodeAsync(
+      {latitude, longitude}, 
+      {useGoogleMaps: false}
+    );
+    // console.log(location[0].region, location[0].district);
+    setCity(location[0].region)
 
   }
   useEffect(() => {
@@ -31,7 +35,7 @@ export default function App() {
   return (
     <View style={styles.container}>
       <View style={styles.city}>
-        <Text style={styles.cityName}>Seoul</Text>
+        <Text style={styles.cityName}>{city}</Text>
       </View>
       <ScrollView 
         showsHorizontalScrollIndicator={false} 
