@@ -1,34 +1,53 @@
 import * as Location from "expo-location";
 import React, { useEffect, useState } from 'react';
 import { StatusBar } from 'expo-status-bar';
-import { ScrollView, StyleSheet, Text, View, Dimensions } from 'react-native';
+import { ScrollView, StyleSheet, Text, View, Dimensions, ActivityIndicator } from 'react-native';
 
 const { width : SCREEN_WIDTH } = Dimensions.get("window");
 // console.log(SCREEN_WIDTH);
+const API_KEY = `784ab24ff2ed5d94d4288abed9e25d13`;
+
 
 export default function App() {
+  // 도시
   const [city, setCity] = useState("Loading...");
-  const [location, setLocation] = useState();
+  // daily 일기예보
+  const [days, setDays] = useState([]);
+
+  // 사용자 허가
   const [ok, setOk] = useState(true);
-  const ask = async() => {
+  const getWeather = async() => {
     // 1.권한요청
     const { granted } = await Location.requestForegroundPermissionsAsync();
     if(!granted){
       setOk(false);
     }
     // 2.유저위치정보
+    // 2-1 getCurrentPositionAsync를 이용하여 현재위치를 기반으로 lat, long의 정보를 얻을 수 있다
     const {coords: {latitude, longitude}} = await Location.getCurrentPositionAsync();
     // console.log({latitude, longitude});
+
+    // 2-2 reverseGeocodeAsync를 이용하여 lat, long을 기반으로 주소를 알아 낼 수 있다.
+    //(Geocode는 주소를 알려주면 lat, long을 알려준다.)
     const location = await Location.reverseGeocodeAsync(
       {latitude, longitude}, 
       {useGoogleMaps: false}
     );
     // console.log(location[0].region, location[0].district);
+
+    // 2-3 위의 과정을 통하여 응답으로 유저가 있는 도시의 이름을 얻는다. -> 얻은 정보는 setCity로 설정
     setCity(location[0].region)
 
+    //3.API이용하기
+    const response = await fetch(`https://api.openweathermap.org/data/2.5/onecall?lat=${latitude}&lon=${longitude}&exclude=alerts&APPID=${API_KEY}&units=metric`);
+    const json = await response.json();
+    // console.log(json.daily);
+    setDays(json.daily);
+    // console.log(days.length);
+    // console.log(days);
   }
   useEffect(() => {
-    ask();
+    getWeather();
   }, []);
 
 
@@ -43,27 +62,19 @@ export default function App() {
         horizontal 
         contentContainerStyle={styles.weather}
       >
-        <View style={styles.day}>
-          <Text style={styles.temp}>27</Text>
-          <Text style={styles.desc}>sunny</Text>
-        </View>
-
-        <View style={styles.day}>
-          <Text style={styles.temp}>27</Text>
-          <Text style={styles.desc}>sunny</Text>
-        </View>
-        <View style={styles.day}>
-          <Text style={styles.temp}>27</Text>
-          <Text style={styles.desc}>sunny</Text>
-        </View>
-        <View style={styles.day}>
-          <Text style={styles.temp}>27</Text>
-          <Text style={styles.desc}>sunny</Text>
-        </View>
-        <View style={styles.day}>
-          <Text style={styles.temp}>27</Text>
-          <Text style={styles.desc}>sunny</Text>
-        </View>
+        {days.length === 0 ? (
+          <View style={styles.day}>
+            <ActivityIndicator color="white" size="large" style={{ marginTop: 10}} />
+          </View>
+        ) : (
+          days.map((day, index) => (
+            <View key={index} style={styles.day}>
+              <Text style={styles.temp}>{parseFloat(day.temp.day).toFixed(2)}</Text>
+              <Text style={styles.desc}>{day.weather[0].main}</Text>
+              <Text style={styles.desc_detail}>{day.weather[0].description}</Text>
+            </View>
+          ))
+        )}
       </ScrollView>
     </View>
   );
@@ -103,6 +114,10 @@ const styles = StyleSheet.create({
   desc:{
     fontSize: 60,
     marginTop: -30,
+    color: "white",
+  },
+  desc_detail: {
+    fontSize: 20,
     color: "white",
   },
 })
