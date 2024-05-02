@@ -16,7 +16,9 @@ export default function App() {
       setOk(false);
     }
     // 2.유저위치정보
-    const location = await Location.getCurrentPositionAsync();
+    const {coords: {latitude, longitude}} = await Location.getCurrentPositionAsync();
+    // console.log({latitude, longitude});
+    const location = await Location.reverseGeocodeAsync({latitude, longitude});
     console.log(location);
 
 
