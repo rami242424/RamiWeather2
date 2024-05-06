@@ -13,7 +13,10 @@ RamiWeather는 사용자의 현재 위치를 기반으로 한 날씨 정보를 �
 - **Expo**: React Native 개발을 위한 툴과 서비스의 모음
 - **OpenWeatherMap API**: 날씨 정보를 제공하는 외부 API
 
-## 프로젝트 구조
+## 프로젝트 구현화면
+![1loading](https://github.com/rami242424/RamiWeather2/assets/138556019/4c2badf5-095e-4040-9696-3e4cd0dc7f76)
+![2scrollview](https://github.com/rami242424/RamiWeather2/assets/138556019/930e0a36-09e5-465e-b4d1-654717cd5a38)
+
 
 ### 코드 설명
 
